@@ -65,10 +65,10 @@ The title, body and comments section of the dataframe was pre-processed using th
 >
 > The data is split into train:test ratio of 80:20.
 
-#### Feature Extraction
-Two approaches were experimented -
+Feature Extraction and training model...
 
-***Approach I : Generating max 5k features with n-grams using TF-IDF Vectorizer***: It automatically makes a vocabulary according to the term frequency and inverse document frequency of the words, and converts the documents into vector form. 
+ #### *Approach I : Generating max 5k features with n-grams using TF-IDF Vectorizer* 
+ It automatically makes a vocabulary according to the term frequency and inverse document frequency of the words, and converts the documents into vector form. 
 
 First, evaluation of unigrams and bigrams under each flair was done and output was pretty relatable to each flair. Hence, tf-idf vectorizer was passed (1,3) as ngram_range. It would ignore words which are present in less than 5 documents or more than 90% of documents. 
 
@@ -82,13 +82,15 @@ The following results were obtained -
 | Random Forest | 67 % | 
 | Naive Bayes | 66 % |
 
-***Approach II : Latent Semantic Analysis***: The tf-idf X matrix is sparse and contains 5000 features/weights of words. These are too many independent features for classifying documents. To overcome this, topic modelling can be a good approach. Classification implies that we have some known topics that documents are grouped into. In this project, one flair may have a number of topics, hence total topics in all documents might be a huge number, but definitely lesser than 5k independent features.
+#### *Approach II : Latent Semantic Analysis*
+The tf-idf X matrix is sparse and contains 5000 features/weights of words. These are too many independent features for classifying documents. To overcome this, topic modelling can be a good approach. Classification implies that we have some known topics that documents are grouped into. In this project, one flair may have a number of topics, hence total topics in all documents might be a huge number, but definitely lesser than 5k independent features.
 
 LSA comes into play as it attempts to capture the hidden concepts in documents, also known as topics. To reduce the dimensionality of tf-idf matrix and find latent topics, I will decompose it using Truncated SVD. Here is a function which will return the optimal number of components on the basis of explained variance and the goal variance.
 
 > Now the question arises: *What is the best way to determine n_components (number of topics) in topic modeling?* Identifying the optimum number of topics in the given corpus text is a challenging task. But then I found [this](https://books.google.co.in/books?id=kIhQDwAAQBAJ&pg=PT154&lpg=PT154&dq=tsvd+optimum+components+explained+variance&source=bl&ots=OmYw-JgkJO&sig=ACfU3U0PtcsL_klxGIJIGZf7JSi01PIN4Q&hl=en&sa=X&ved=2ahUKEwitwdKQ1IPpAhVA73MBHY3EAmgQ6AEwBXoECAwQAQ#v=onepage&q=tsvd%20optimum%20components%20explained%20variance&f=false) extract which suggests to set a threshold of explained variance. Apart from that, there's a need to see the trade off between the number of features and explained variance. An automated loop was set which would return optimal num_components when explained variance reaches 90 %.
 
 Optimal number of components (representing topics) came out to be 1138. After dimensionality reduction, ML models are evaluated again.
+
 ```tsvd = TruncatedSVD(n_components = 1138, n_iter=10, random_state=42)```
 
 The following results were obtained -
