@@ -1,0 +1,75 @@
+<html>
+<title>Reddit Flair Detector</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+.jumbotron {
+		background-image: url("https://images.wallpaperscraft.com/image/lines_red_background_86982_2560x1080.jpg");
+		background-size:cover;
+    color: #fff;
+    padding: 90px 25px;
+}
+.container-fluid {
+    padding: 10px 300px;
+}
+.navbar {
+    margin-bottom: 0;
+    background-color: #000000;
+    z-index: 9999;
+    border: 0;
+    font-size: 14px !important;
+    line-height: 5 !important;
+    letter-spacing: 4px;
+    border-radius: 0;
+}
+.navbar li a, .navbar .navbar-brand {
+    color: #fff !important;
+}
+.navbar-nav li a:hover, .navbar-nav li.active a {
+    color: #000000     !important;
+    background-color: #fff !important;
+}
+.navbar-default .navbar-toggle {
+    border-color: transparent;
+    color: #fff !important;
+}
+.boxed {
+	background: grey;
+	width: fit-content;
+	padding: 15px 30px;
+	border-radius: 10px;
+}
+.bg-grey {
+    background-color: #f1f1f1;
+}
+</style>
+
+<body>
+  <div class="jumbotron text-center">
+    <h1>Reddit Flair Detector</h1>
+    <p>This website predicts the FLAIR of the posts from Reddit India on the basis of a machine learning model using NLP.</p>
+  </div>
+
+<div class="container-fluid">
+  <h5>Enter the r/india post URL here:</h5>
+
+  <form action="{{ url_for('main') }}" method="post">
+
+		<div class="form-group">
+    <input type="text" class="form-control" id="url" name="url">
+  	</div>
+
+
+  	<center><button type="submit" class="btn btn-primary">Predict</button></center>
+	</form>
+	<br>
+	<center><h4 style="color:crimson;"> {{ title }} </h4></center>
+	<center><h1 class="boxed" style="color:white;">{{ flair }}</h1></center><br>
+</div>
+<br> <br>
+<footer class="container-fluid bg-grey">
+  <h5 align="center">Developed by <a href = "https://www.linkedin.com/in/harshita-chopra-7ba01a191/">Harshita Chopra</a></h5>
+</footer>
+</body>
+</html>
