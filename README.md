@@ -116,7 +116,7 @@ An automated testing checkpoint is also created. When a text file containing URL
 ```
 import requests
 
-files = {'upload_file': open('file.txt','rb')}
+files = {'upload_file': open('test.txt','rb')}
 r = requests.post("https://rindia-flair-prediction.herokuapp.com/automated_testing", files=files)
 
 with open('results.json', 'w') as f:
