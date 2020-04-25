@@ -1,6 +1,8 @@
 # Reddit Flair Detection
 
-This project aims at predicting the flair/category of Reddit posts from r/india subreddit, using NLP and machine learning algorithms. It can be found in the form of a Flask web application deployed live on heroku. Access it at - https://rindia-flair-prediction.herokuapp.com/ 
+This project aims at predicting the flair/category of Reddit posts from r/india subreddit, using NLP and machine learning algorithms. It can be found in the form of a Flask web application deployed live on heroku. 
+
+Access it at - https://rindia-flair-prediction.herokuapp.com/ 
 
 ### Structure 
 - [extract_data.ipynb](https://github.com/harshita219/Reddit-Flair-Detection/blob/master/extract_data.ipynb) : Jupyter notebook containing all the code that was used to fetch data using PRAW API from reddit and creating a CSV file further data analysis and building the machine learning model.
@@ -17,6 +19,8 @@ This project aims at predicting the flair/category of Reddit posts from r/india 
 
 - [requirements.txt](https://github.com/harshita219/Reddit-Flair-Detection/blob/master/requirements.txt) : Contains all Python dependencies of the project.
 
+- vectorizer.pkl, LSA_topics.pkl, svm_model.pkl : Are saved files which are used in flask web-app.
+
 ### Project Execution
 In order to run the website on localhost of your system, follow the given steps. Ensure that Python3, pip and virtualenv are already installed.
  
@@ -28,7 +32,7 @@ In order to run the website on localhost of your system, follow the given steps.
 6. Install the required dependencies by executing the command: ```pip install -r requirements.txt```
 7. Now execute ```flask run``` and find the website live at http://127.0.0.1:5000/ on your system.
 
-## Approach
+## Approach and experimenting
 This section gives a detailed document of all the steps followed in order to extract data, EDA for gaining insights and getting into NLP to create a machine learning model.
 
 ### Part 1 - Reddit Data collection
@@ -64,33 +68,38 @@ The title, body and comments section of the dataframe was pre-processed using th
 #### Feature Extraction
 Two approaches were experimented -
 
-***Approach II : Implicitly generating features using TF-IDF vectorizer's parameters***: It automatically makes a vocabulary according to the term frequency and inverse document frequency of the words, and converts the documents into vector form.
+***Approach I : Generating max 5k features with n-grams using TF-IDF Vectorizer***: It automatically makes a vocabulary according to the term frequency and inverse document frequency of the words, and converts the documents into vector form. 
 
-```TfidfVectorizer(ngram_range=(1,2), max_features=1000, min_df=20, stop_words=cleaning.STOPWORDS )``` was fit and transformed on the 'content' of data.
+First, evaluation of unigrams and bigrams under each flair was done and output was pretty relatable to each flair. Hence, tf-idf vectorizer was passed (1,3) as ngram_range. It would ignore words which are present in less than 5 documents or more than 90% of documents. 
+
+```TfidfVectorizer(max_features = 5000, ngram_range=(1,3), min_df=5, max_df=0.9, stop_words=cleaning.STOPWORDS )``` was fit and transformed on the 'content' of data.
+
+The following results were obtained -
+| Classifier | Accuracy |
+| :---: | :---: | 
+| Linear SVM | 68 % |
+| Logistic Regression | 68 % | 
+| Random Forest | 67 % | 
+| Naive Bayes | 66 % |
+
+***Approach II : Latent Semantic Analysis***: The tf-idf X matrix is sparse and contains 5000 features/weights of words. These are too many independent features for classifying documents. To overcome this, topic modelling can be a good approach. Classification implies that we have some known topics that documents are grouped into. In this project, one flair may have a number of topics, hence total topics in all documents might be a huge number, but definitely lesser than 5k independent features.
+
+LSA comes into play as it attempts to capture the hidden concepts in documents, also known as topics. To reduce the dimensionality of tf-idf matrix and find latent topics, I will decompose it using Truncated SVD. Here is a function which will return the optimal number of components on the basis of explained variance and the goal variance.
+
+> Now the question arises: *What is the best way to determine n_components (number of topics) in topic modeling?* Identifying the optimum number of topics in the given corpus text is a challenging task. But then I found [this](https://books.google.co.in/books?id=kIhQDwAAQBAJ&pg=PT154&lpg=PT154&dq=tsvd+optimum+components+explained+variance&source=bl&ots=OmYw-JgkJO&sig=ACfU3U0PtcsL_klxGIJIGZf7JSi01PIN4Q&hl=en&sa=X&ved=2ahUKEwitwdKQ1IPpAhVA73MBHY3EAmgQ6AEwBXoECAwQAQ#v=onepage&q=tsvd%20optimum%20components%20explained%20variance&f=false) extract which suggests to set a threshold of explained variance. Apart from that, there's a need to see the trade off between the number of features and explained variance. An automated loop was set which would return optimal num_components when explained variance reaches 90 %.
+
+Optimal number of components (representing topics) came out to be 1138. After dimensionality reduction, ML models are evaluated again.
+```tsvd = TruncatedSVD(n_components = 1138, n_iter=10, random_state=42)```
 
 The following results were obtained -
 | Classifier | Accuracy in % |
 | :---: | :---: | 
-| Random Forest | 65.98 | 
-| Logistic Regression | 65.15 | 
-| Naive Bayes | 64.12 |
-| SVM | 62.89 |
-
-***Approach II : Creating custom vocabulary with top unigrams and bigrams under each flair***: Top 100 unigrams and top 40 bigrams are extracted from content of each flair one by one. This means even distribution of features in terms of flair.
-These n-grmas in ```custom_vocab``` are fed to the 'vocabulary' parameter of the tf-idf vectorizer which will convert our documents into feature vectors.
-
-```tfidf = TfidfVectorizer(vocabulary = custom_vocab)```
-
-The following results were obtained -
-| Classifier | Accuracy in % |
-| :---: | :---: | 
-| Random Forest | 67.42 | 
-| Logistic Regression | 66.39 | 
-| Naive Bayes | 64.74 |
-| SVM | 61.44 |
+| Linear SVM | 70 % |
+| Logistic Regression | 69 % | 
+| Random Forest | 68 % |
 
 ## Results
-There was a slight increase in the accuracy in Approach II. **Random Forest classifier scores the best accuracy of 67.42 %** with a classification report as given -
+There was a slight increase in the accuracy after LSA. **Linear Support Vector Classifier scores the best accuracy of 70 %** with a classification report as given -
 
 ![classification-report](images/report.PNG)
 
@@ -105,23 +114,21 @@ An automated testing checkpoint is also created. When a text file containing URL
 ```
 import requests
 
-with open('test.txt', 'rb') as f:
-    res = requests.post('https://rindia-flair-prediction.herokuapp.com/automated_testing', files={'file':f})
+files = {'upload_file': open('file.txt','rb')}
+r = requests.post("https://rindia-flair-prediction.herokuapp.com/automated_testing", files=files)
 
 with open('results.json', 'w') as f:
-    f.write(res.text)
+    f.write(r.text)
 ```
 Save this as a python file, for example, script.py in the same folder as test.txt (which contains urls in each line). Executing the command ```python script.py``` would download results.json file in the same folder.
 
 ## References
 
 https://www.storybench.org/how-to-scrape-reddit-with-python/
-
 https://towardsdatascience.com/text-classification-in-python-dd95d264c802
-
 https://github.com/TrigonaMinima/HinglishNLP/blob/master/data/assets/stop_hinglish
-
-
+https://stackoverflow.com/questions/38640109/logistic-regression-python-solvers-defintions
+https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/
 
 
 
