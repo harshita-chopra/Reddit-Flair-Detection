@@ -126,10 +126,10 @@ Save this as a python file, for example, script.py in the same folder as test.tx
 
 ## References
 
-https://www.storybench.org/how-to-scrape-reddit-with-python/
-https://towardsdatascience.com/text-classification-in-python-dd95d264c802
-https://github.com/TrigonaMinima/HinglishNLP/blob/master/data/assets/stop_hinglish
-https://stackoverflow.com/questions/38640109/logistic-regression-python-solvers-defintions
+https://www.storybench.org/how-to-scrape-reddit-with-python/  
+https://towardsdatascience.com/text-classification-in-python-dd95d264c802  
+https://github.com/TrigonaMinima/HinglishNLP/blob/master/data/assets/stop_hinglish  
+https://stackoverflow.com/questions/38640109/logistic-regression-python-solvers-defintions  
 https://www.analyticsvidhya.com/blog/2018/10/stepwise-guide-topic-modeling-latent-semantic-analysis/
 
 
