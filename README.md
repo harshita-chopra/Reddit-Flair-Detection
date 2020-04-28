@@ -83,7 +83,7 @@ The following results were obtained -
 | Naive Bayes | 66 % |
 
 #### *Approach II : Latent Semantic Analysis*
-The tf-idf X matrix is sparse and contains 5000 features/weights of words. These are too many independent features for classifying documents. To overcome this, topic modelling can be a good approach. Classification implies that we have some known topics that documents are grouped into. In this project, one flair may have a number of topics, hence total topics in all documents might be a huge number, but definitely lesser than 5k independent features.
+The tf-idf X matrix is sparse and contains 5000 features/weights of words. These are too many independent features for classifying documents. To overcome this, ***topic modelling*** can be a good approach. Classification implies that we have some known topics that documents are grouped into. In this project, one flair may have a number of topics, hence total topics in all documents might be a huge number, but definitely lesser than 5k independent features.
 
 LSA comes into play as it attempts to capture the hidden concepts in documents, also known as topics. To reduce the dimensionality of tf-idf matrix and find latent topics, I will decompose it using Truncated SVD. Here is a function which will return the optimal number of components on the basis of explained variance and the goal variance.
 
